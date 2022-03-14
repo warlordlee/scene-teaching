@@ -3,14 +3,29 @@
         <i class="iconfont iconzhilingpeizhi"></i>
         <ul class="menu">
             <li>
-                <a href="javascript:void(0)" title="导入配置">
-                    <i class="iconfont iconwenben"></i>
-                </a>
+                <el-upload
+                        class="upload-demo"
+                        action=""
+                        :auto-upload="false"
+                        :show-file-list="false"
+                        :on-change="importExcel">
+                    <a title="导入配置">
+                        <i class="iconfont iconwenben"></i>
+                    </a>
+                </el-upload>
             </li>
             <li>
-                <a href="javascript:void(0)" title="导入图片">
-                    <i class="iconfont icontupian"></i>
-                </a>
+                <el-upload
+                        action=""
+                        :on-change="importPic"
+                        :auto-upload="false"
+                        :show-file-list="false"
+                        :multiple="true">
+                    <a href="javascript:void(0)" title="导入图片">
+                        <i class="iconfont icontupian"></i>
+                    </a>
+                </el-upload>
+
             </li>
             <li>
                 <a href="javascript:void(0)" title="导入音频">
@@ -26,7 +41,15 @@
 
 <script>
     export default {
-        name: "menu"
+        name: "menu",
+        methods:{
+            importExcel(file){
+                this.$parent.handlePreview(file)
+            },
+            importPic(file){
+                this.$parent.handlePicPreview(file)
+            }
+        }
     }
 </script>
 
