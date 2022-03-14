@@ -54,13 +54,12 @@
                     if (this.index < this.caseData[this.sceneIndex].text.length - 1) {
                         //切换场景内对话 和立绘
                         this.index++;
-                        this.refresh()
                     } else {
                         //场景索引自增，场景内索引归零 切换场景
                         this.index = 0;
                         this.sceneIndex++;
-                        this.refresh()
                     }
+                    this.refresh()
                 } else {
                     alert('切换案例')
                 }
