@@ -1,52 +1,23 @@
 <template>
     <div class="main">
-        <el-row class="mg-bot">
-            <el-col>
-                <el-upload
-                        class="upload-demo"
-                        action=""
-                        :on-change="handlePreview"
-                        multiple
-                        :limit="3"
-                        :file-list="fileList">
-                    <el-button size="small" type="primary">点击上传</el-button>
-                </el-upload>
-            </el-col>
-        </el-row>
-        <el-row class="mg-bot">
-            <el-col>
-                <el-upload
-                        action=""
-                        :on-error="handlePicsChange"
-                        :multiple="true">
-                    <el-button size="small" type="primary">上传图片</el-button>
-                </el-upload>
-            </el-col>
-        </el-row>
-        <el-row class="mg-bot">
-            <template v-for="(pic,index) in picList">
-                <el-col :key="'pic'+index" :span="4">
-                    <img :src="handlePicPreview(pic)" alt="" class="img-style">
-                </el-col>
-            </template>
-        </el-row>
-        <el-row>
-            <el-col>
-                <img :src="imageUrl" class="img-style">
-            </el-col>
-        </el-row>
+        <div class="menu-container">
+            <setting-menu></setting-menu>
+        </div>
+        <div class="content-container"></div>
     </div>
 </template>
 
 <script>
+    import settingMenu from '../components/menu'
     import * as XLSX from 'xlsx';
     export default {
         name: "home",
-        components: {},
-        mounted() {
+        components: {
+            settingMenu
         },
         data() {
             return {
+                index: 0,
                 fileList: [],
                 picList:[],
                 xlscList:[],
@@ -133,11 +104,22 @@
 </script>
 
 <style scoped lang="less">
-    .mg-bot{
-        margin-bottom: 15px;
+    .main{
+       background-color: rgba(9,17,28,0.9);
     }
-    .img-style{
-        width: 200px;
-        height: 200px;
+    .menu-container{
+        position: absolute;
+        left: 30px;
+        top: 30px;
+        padding: 20px;
+        z-index: 100;
+    }
+    .content-container{
+        width: 98%;
+        height: 95%;
+        margin: 1% auto;
+        border: 2px solid rgba(54,141,215,0.7);
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(84, 200, 229, 0.7);
     }
 </style>
