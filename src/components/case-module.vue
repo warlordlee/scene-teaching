@@ -4,26 +4,59 @@
             <!--仅当前场景可见-->
             <div class="full" :key="'scene'+index" v-show="index === sceneIndex">
                 <!--背景图-->
-                <img class="bg" :src="scene.background" alt="" @click="handleScene">
+                <img class="bg" :src="scene.background" alt="" @click="handleScene(vm)">
                 <!--对话框-->
-                <div class="dialog" @click="handleScene">
-                    <template v-for="(t,ord) in scene.text">
-                        <p :key="'text'+ord" v-show="t.show">
-                            {{scene.pep[ord] + ':'+ t.value}}
-                        </p>
-                    </template>
+                <div class="dialog">
+                    <!--场景对话-->
+                    <div v-if="'对话'===scene.type" @click="handleScene(vm)">
+                        <template v-for="(t,ord) in scene.text">
+                            <p :key="'text'+ord" v-show="t.show" class="dialog-text">
+                                <span class="name">{{scene.pep[ord]}}</span>
+                                <span>{{':'+ t.value}}</span>
+                            </p>
+                        </template>
+                    </div>
+                    <!--提问场景-->
+                    <div v-if="'问题'===scene.type">
+                        <div class="dialog-text">
+                            <div class='name'>{{scene.pep[0]}}</div>
+                            <div class="dialog-question">
+                                {{formatQuestion(scene.text[0].value).question}}
+                            </div>
+                            <div class="choices">
+                                <div v-for="(item,index) in formatQuestion(scene.text[0].value).answer"
+                                     :key="'answer'+index" @click="handleAnswer(scene,item,vm)" class="choice-item">
+                                    {{item}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--连线题场景-->
                 </div>
                 <!--人物立绘-->
                 <template v-for="(p,j) in scene.portrait">
                     <img :key="'pic'+j" v-show="p.show" :src="p.value" class="pep" alt=""
-                         :class="getPos(scene.portraitPos[j])">
+                         :class="[getPos(scene.portraitPos[j]), scene.size[j]]">
                 </template>
             </div>
         </template>
+        <!--答题提示框-->
+        <el-dialog
+                :visible.sync="dialogVisible"
+                center
+                width="30%">
+            <span>{{correct?'恭喜你答对了！':'很遗憾答错了'}}</span>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="primary" @click="goOn" v-if="correct">确 定</el-button>
+                <el-button type="primary" @click="dialogVisible = false" v-else>继续回答</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
 <script>
+    import {forMatQuestion, handleScene, handleAnswer, refresh} from '../utils/home'
+
     export default {
         name: "case-module",
         props: ['caseData'],//当前案例数据
@@ -31,38 +64,31 @@
             return {
                 index: 0,//场景内索引
                 sceneIndex: 0,//场景索引
+                stop: false,//翻页阻塞
+                forMatQuestion: forMatQuestion,
+                handleScene: handleScene,//场景翻页方法
+                handleAnswer: handleAnswer,//答题事件
+                vm: this,
+                correct: false,//用户是否答对
+                dialogVisible: false
             }
         },
         created() {
             console.log(this.caseData);
-            this.refresh()
+            refresh(this)
         },
         methods: {
             getPos(pos) {
                 return 'left' === pos ? 'pep-left' : 'right' === pos ? 'pep-right' : ''
             },
-            refresh(){
-                this.caseData[this.sceneIndex].text.forEach((t, index) => {
-                    t.show = index === this.index
-                });
-                this.caseData[this.sceneIndex].portrait.forEach((p, index) => {
-                    p.show = index === this.index
-                });
+            formatQuestion(str) {
+                return eval('(' + str + ')')
             },
-            handleScene() {
-                if (this.sceneIndex < this.caseData.length - 1) {
-                    if (this.index < this.caseData[this.sceneIndex].text.length - 1) {
-                        //切换场景内对话 和立绘
-                        this.index++;
-                    } else {
-                        //场景索引自增，场景内索引归零 切换场景
-                        this.index = 0;
-                        this.sceneIndex++;
-                    }
-                    this.refresh()
-                } else {
-                    alert('切换案例')
-                }
+            goOn() {
+                //答对后翻页
+                this.dialogVisible = false;
+                handleScene(this);
+                this.correct = false
             }
         }
     }
@@ -99,9 +125,22 @@
     .pep {
         position: absolute;
         z-index: 200;
-        width: 180px;
-        height: 415px;
-        bottom: 25px;
+        width: 280px;
+        bottom: 0;
+        left: 44%;
+    }
+
+    .big {
+        height: 100%;
+    }
+
+    .mid {
+        height: 80%;
+    }
+
+    .small {
+        height: 450px;
+        width: 225px;
     }
 
     .pep-left {
@@ -109,6 +148,7 @@
     }
 
     .pep-right {
+        left: auto;
         right: 30px;
     }
 </style>
